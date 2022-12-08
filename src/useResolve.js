@@ -1,46 +1,48 @@
-import { useState } from "react";
-
-export const useResolve = ({ a, b, e, func }) => {
-  console.log(a, b, e, func)
-  console.log(Number(a), Number(b), Number(e))
-  const [res, setRes] = useState([]);
-  const [check, setCheck] = useState(0)
-  const [checkRes, setCheckRes] = useState(0)
-  const [data, setData] = useState([])
-  const method = () => {
-    let c = 0;
-    let a0 = Number(a);
-    let b0 = Number(b);
-    let mas = [];
-    let ex = Number(e)
-    while (b0 - a0 > ex) {
-      c = (a0+b0)/2
-      if (func(a0) * func(c) < 0) {
-        b0 = c;
-      } else if(func(a0) * func(c) > 0) {
-        a0 = c;
-      }
-        else {
-          setRes(mas)
-          setCheck(c)
-          return c
-      }
-      mas.push({name: a0, uv: b0})
+export const useResolve = (
+  a0,
+  b0,
+  e0,
+  value,
+  setAnswer,
+  setCheck,
+  setGraphMas
+) => {
+  const getFunction = () => {
+    if (value === 1) {
+      return (x) => Math.pow(x, 2) - x - 2;
     }
-    setRes(mas)
-    setCheck((a0+b0)/2)
-    return (a0+b0)/2;
+    if (value === 2) {
+      return (x) => 3 - Math.pow(x, 3);
+    }
+    if (value === 3) {
+      return (x) => 4 - Math.exp(x) - 2 * Math.pow(x, 2);
+    }
   };
-  const calcCheck = () => {
-    setCheckRes(func(check))
-  }
-  const calcFunction = () => {
-    const mas = []
-    for(let i = Number(a); i < Number(b); i++){
-      mas.push({name: i, uv: func(i)})
+
+  const method = () => {
+    const func = getFunction();
+    let a = parseFloat(a0);
+    let b = parseFloat(b0);
+    let e = parseFloat(e0);
+    let graphMas = [];
+    console.log(a, b, e);
+    let c = 0;
+
+    do {
+      c = (a + b) / 2;
+      if (func(c) * func(a) < 0) {
+        b = c;
+      } else {
+        a = c;
+      }
+    } while (Math.abs(a - b) >= e);
+    setAnswer(c);
+    setCheck(func(c));
+    for (let i = -10; i <= 10; i++) {
+      graphMas.push({ name: i, uv: func(i) });
     }
-    setData(mas)
-    return mas
-  }
-  return { method, res, setRes, calcCheck,checkRes,calcFunction, data};
+    setGraphMas([...graphMas]);
+  };
+
+  return { method };
 };
